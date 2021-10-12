@@ -1,4 +1,4 @@
-# Simply Config
+# Trifoia Config
 Super simple application configuration
 
 This little module was initially developed as a template file for our Nodejs projects to help deal with magic variables and secret configurations, but has become so useful we've decided to make it it's own thing. This module is specifically designed to work with VSCode intellisense. Also supports environment variables
@@ -15,7 +15,7 @@ module.exports = {
    * Configuration configurations
    * 
    * This is a top level configuration category that includes values that
-   * effect the function of the simply-config utility itself
+   * effect the function of the trifoia-config utility itself
    */
   config: {
     /**
@@ -37,42 +37,42 @@ Alternatively, a user provided default configurations object may be provided to 
 This module support both commonjs and module import paradigms
 ```js
 // Module
-import simplyConfig from 'simply-config';
+import trifoiaConfig from 'trifoia-config';
 
 // Commonjs
-const simplyConfig = require('simply-config');
+const trifoiaConfig = require('trifoia-config');
 ```
 
 ## Basic Usage
 Call the imported method to instantiate the configuration values
 ```js
 // Minimal usage
-const config = simplyConfig();
+const config = trifoiaConfig();
 
 // User provided base object
-const config = simplyConfig(require('./.conf.custom.js'));
+const config = trifoiaConfig(require('./.conf.custom.js'));
 
 // Overwrite existing object
 const config = require('./.conf.custom.js');
-simplyConfig(config);
+trifoiaConfig(config);
 
 // JSDoc Type Definition for Intellisense support
 /**
  * @type {import('./.conf.default.js')}
  */
-const config = simplyConfig();
+const config = trifoiaConfig();
 
 // Single line usage with Intellisense
 /**
  * @type {import('./.conf.default.js')}
  */
-const config = require('simply-config')();
+const config = require('trifoia-config')();
 ```
 
 ## Options
 Additional options can also be provided to the imported method
 ```js
-const config = simplyConfig(null, {
+const config = trifoiaConfig(null, {
   // High priority user provided overrides
   overrides: {
     category: {

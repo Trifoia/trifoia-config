@@ -1,11 +1,11 @@
 {
-  "name": "simply-config",
+  "name": "trifoia-config",
   "version": "1.0.0",
   "description": "An extremely simple configuration management system",
   "main": "config.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Trifoia/simply-config.git"
+    "url": "git+https://github.com/Trifoia/trifoia-config.git"
   },
   "keywords": [
     "Config",
@@ -14,7 +14,7 @@
   "author": "Trifoia (https://trifoia.com/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Trifoia/simply-config/issues"
+    "url": "https://github.com/Trifoia/trifoia-config/issues"
   },
-  "homepage": "https://github.com/Trifoia/simply-config#readme"
+  "homepage": "https://github.com/Trifoia/trifoia-config#readme"
 }

@@ -20,7 +20,7 @@ module.exports = {
    * Configuration configurations
    * 
    * This is a top level configuration category that includes values that
-   * effect the function of the simply-config utility itself
+   * effect the function of the trifoia-config utility itself
    */
    config: {
     /**
