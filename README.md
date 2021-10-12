@@ -21,7 +21,7 @@ module.exports = {
     /**
      * If an error should be thrown for `undefined` configuration values
      * 
-     * This is a configuration value, these values are overwritten by 
+     * This is a configuration value, these values are overwritten by higher
      * priority inputs non-recursively. Any overwritten objects or arrays will
      * be replaced entirely
      */
