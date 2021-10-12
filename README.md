@@ -34,7 +34,7 @@ Alternatively, a user provided default configurations object may be provided to 
 
 # Examples
 ## Importing
-This module support both commonjs and module import paradigms
+This module supports both commonjs and module import paradigms
 ```js
 // Module
 import trifoiaConfig from 'trifoia-config';
