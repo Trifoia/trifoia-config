@@ -1,63 +1,109 @@
-# Trifoia Nodejs Template
-Nodejs template used by Trifoia. Remember to replace this with project specific information!
-- This README file
-- Package.json
-  - name
-  - version
-  - description
-  - repository.url
-  - keywords
-  - bugs.url
-  - homepage
+# Simply Config
+Super simple application configuration
 
-# Development Notes
-## Node Version
-Always use the version of Nodejs defined in the [.nvmrc]('./.nvmrc) file. It is _highly recommended_ that you use [NVM](https://github.com/nvm-sh/nvm) to manage Nodejs versions. To ensure you are using the correct Nodejs version, run the following command while within the root project directory:
-```sh
-nvm install ; nvm use
-```
+This little module was initially developed as a template file for our Nodejs projects to help deal with magic variables and secret configurations, but has become so useful we've decided to make it it's own thing. This module is specifically designed to work with VSCode intellisense. Also supports environment variables
 
-## NPM Scripts
+# Files
+By default, this module expects the following files to be present in the current working directory (as returned by `process.cwd()`)
+- `.conf.default.js` - Required - The base for configurations
+- `.conf.js` - Optional - Secret configurations not meant to be included in source control
 
-```sh
-npm test # Run all tests
-npm run test-quick # Only run quick tests
-npm run lint # Run the linter
-npm run lint-fix # Run linter and automatically fix issues
-```
-
-## Project Structure
-All code should be added to the [src](./src) directory. The structure of the source directory should be replicated in the [test](./test) directory, and all files except for control files should have an associated unit test file in that folder
-
-## Unit Testing
-This project uses the [Mocha](https://mochajs.org/) library to run unit tests. The principles of "Test Driven Development" should be followed when writing code in this project. That is, unit tests should be leveraged as a development tool and all major functionality should have associated unit tests
-
-Test files should share the name of the file they are meant to test, with `-test` appended to the filename
-
-### Slow Tests
-There are two types of tests to consider, "quick" tests, and "slow" tests. For speedy development, finished tests that rely on external resources like a database or an aws service should be marked as "slow" - it will then be skipped over when running the `test-quick` commands. This can be done by using the hooks provided in the [slow-hooks](test/test-utils/slow-hooks.js) helper utility. If a test suite contains slow test, include the following snippet at the top of the file (with an adjusted require statement, if necessary):
+The .conf files should have the following form. Use JSDocs in the default configuration file to enable Intellisense support
 ```js
-/* eslint-disable no-unused-vars */
-const { it, before, beforeEach, after, afterEach } = require('../test-utils/slow-hooks.js');
-/* eslint-enable no-unused-vars */
+module.exports = {
+  /**
+   * Configuration configurations
+   * 
+   * This is a top level configuration category that includes values that
+   * effect the function of the simply-config utility itself
+   */
+  config: {
+    /**
+     * If an error should be thrown for `undefined` configuration values
+     * 
+     * This is a configuration value, these values are overwritten by 
+     * priority inputs non-recursively. Any overwritten objects or arrays will
+     * be replaced entirely
+     */
+    errorOnUndefined: false
+  },
+};
 ```
 
-Once the slow hooks are imported, none of the tests or hooks will run when performing tests in quick mode. The import can be deactivated by either commenting out the import statement, or by appending `.force` to the end of the require statement, as follows:
+Alternatively, a user provided default configurations object may be provided to the module on initialization
+
+# Examples
+## Importing
+This module support both commonjs and module import paradigms
 ```js
-const { it, before, beforeEach, after, afterEach } = require('../test-utils/slow-hooks.js').force;
+// Module
+import simplyConfig from 'simply-config';
+
+// Commonjs
+const simplyConfig = require('simply-config');
 ```
 
-Additionally, if you still want a specific test or hook to always run, even when using slow hooks, append `.force` to the desired hook as follows:
+## Basic Usage
+Call the imported method to instantiate the configuration values
 ```js
-it.force('description', fn);
-before.force('description', fn);
-beforeEach.force('description', fn);
-after.force('description', fn);
-afterEach.force('description', fn);
+// Minimal usage
+const config = simplyConfig();
+
+// User provided base object
+const config = simplyConfig(require('./.conf.custom.js'));
+
+// Overwrite existing object
+const config = require('./.conf.custom.js');
+simplyConfig(config);
+
+// JSDoc Type Definition for Intellisense support
+/**
+ * @type {import('./.conf.default.js')}
+ */
+const config = simplyConfig();
+
+// Single line usage with Intellisense
+/**
+ * @type {import('./.conf.default.js')}
+ */
+const config = require('simply-config')();
 ```
 
-## Debugging
-This project has built-in utilities for debugging unit tests with VSCode (breakpoints, process stepping, etc). Run the `Mocha` or `Mocha Quick` debug launch configuration to debug all tests or only quick tests respectively
+## Options
+Additional options can also be provided to the imported method
+```js
+const config = simplyConfig(null, {
+  // High priority user provided overrides
+  overrides: {
+    category: {
+      value: 'Always use this value';
+    },
+  },
 
-## Configuration
-This project uses a standard configuration system that allows for global configuration values to be easily defined and overwritten locally. See the [config](./config.js) and [.conf.default.js](./.conf.default.js) files in the root directory for more information. Environment variables can also be used to define values, using the following format for the key: `NODE_CONF_${category}_${value}`
+  // User provided working directory
+  workingDir: '/custom/working/directory',
+
+  // Disable envar parsing
+  disableEnvarParsing: true,
+});
+```
+
+# Input Priority
+There are four places this module will look for configuration values, in the following ascending priority order
+
+## 1. Default Configurations
+The base level input. Either provided directly by the user or found in a `.conf.default.js` file in the working directory. Configurations *must* be defined as a default configuration for overwrites to work (note: configuration values can be set to `null` or `undefined`)
+
+## 2. Secret Configurations File
+Values in a `.conf.js` file found in the working directory will overwrite default configurations
+
+## 3. Environment Variables
+Specially formatted environment variables can be used to define configuration values that will overwrite values found in configuration files. These envars should have the following format
+```js
+`conf_${categoryKey}_${valueKey}`
+```
+
+By default, JSON and numerical envars will automatically be parsed. Parsing can be disabled by setting the `disableEnvarParsing` options property to `true`
+
+## 4. Overrides Option
+Provide an options object with an `overrides` property to the imported method to overwrite any other values

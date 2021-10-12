@@ -1,31 +1,20 @@
 {
-  "name": "nodejs-template",
-  "version": "2.0.3",
-  "description": "Nodejs template used by Trifoia. Remember to replace this with project specific information!",
-  "main": "index.js",
-  "scripts": {
-    "test": "mocha --recursive --test",
-    "test-quick": "mocha --recursive --quick --test",
-    "test-debug": "node --inspect node_modules/.bin/mocha --recursive --test",
-    "test-debug-quick": "node --inspect node_modules/.bin/mocha --recursive --quick --test",
-    "lint": "eslint .",
-    "lint-fix": "eslint . --fix"
-  },
+  "name": "simply-config",
+  "version": "1.0.0",
+  "description": "An extremely simple configuration management system",
+  "main": "config.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Trifoia/nodejs-template.git"
+    "url": "git+https://github.com/Trifoia/simply-config.git"
   },
   "keywords": [
-    "Template"
+    "Config",
+    "Lightweight"
   ],
   "author": "Trifoia (https://trifoia.com/)",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Trifoia/nodejs-template/issues"
+    "url": "https://github.com/Trifoia/simply-config/issues"
   },
-  "homepage": "https://github.com/Trifoia/nodejs-template#readme",
-  "devDependencies": {
-    "eslint": "^7.23.0",
-    "mocha": "^8.3.2"
-  }
+  "homepage": "https://github.com/Trifoia/simply-config#readme"
 }

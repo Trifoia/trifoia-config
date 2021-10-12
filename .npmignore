@@ -1,0 +1,3 @@
+.npmignore
+test-commonjs.js
+test-module.mjs

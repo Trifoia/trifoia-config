@@ -13,15 +13,22 @@
  * `config.errorOnUndefined` value is set to `false`
  * 
  * Environment variables can also be used to define values, using the following format for
- * the key: `NODE_CONF_${Category}_${Value}`
+ * the key: `conf_${category}_${value}`
  */
 module.exports = {
   /**
-   * Configuration configurations (yo dawg)
+   * Configuration configurations
+   * 
+   * This is a top level configuration category that includes values that
+   * effect the function of the simply-config utility itself
    */
-  config: {
+   config: {
     /**
      * If an error should be thrown for `undefined` configuration values
+     * 
+     * This is a configuration value, these values are overwritten by 
+     * priority inputs non-recursively. Any overwritten objects or arrays will
+     * be replaced entirely
      */
     errorOnUndefined: false
   },

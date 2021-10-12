@@ -1,38 +1,6 @@
 'use strict';
 
-/*
-  This configuration utility is designed to allow the definition of important constants in a
-  way that is compatible with VSCode Intellisense.
-
-  Secret (ignored) configurations can be set in a `.conf.js` file, and will overwrite default
-  configurations. Environment variables can also be used to define string values, using the
-  following format for the key: `NODE_CONF_${categoryKey}_${valueKey}`
-
-  This utility expects there to be a `.conf.default.js` file in the same directory. The secret
-  config file is optional
-
-  See the default config for details on file formatting
-
-  The config object will only get values from the related conf files the first time it is
-  imported. Use the `config.loadConfig` method to force a read from file
-*/
-
-const config = require('./.conf.default.js');
-let secretConfig = {};
-try {
-  secretConfig = require('./.conf.js');
-} catch(e) {
-  // Allow error
-}
-
-/**
- * Array containing falsy values that are explicitly permitted
- */
-const allowedFalsyValues = [
-  '',
-  0,
-  null
-];
+const path = require('path');
 
 /**
  * Simple helper determines if a value exists in a config object
@@ -42,7 +10,7 @@ const allowedFalsyValues = [
  * @param {string} valueKey Name of the value to check
  */
 const checkExists = (obj, categoryKey, valueKey) => {
-  return obj[categoryKey] && (obj[categoryKey][valueKey] || allowedFalsyValues.includes(obj[categoryKey][valueKey]));
+  return obj[categoryKey] && typeof obj[categoryKey][valueKey] !== 'undefined';
 };
 
 /**
@@ -72,19 +40,64 @@ const checkForUndefinedRecursive = (obj, originalKey = 'this') => {
 };
 
 /**
- * Method will load config values into the config object. Can be used to re-initialize the config
- * object, if needed
- *
- * @param {object} configOpts Overrides for any currently set config options
+ * @typedef ConfigOpts
+ * @property {object} [overrides] Object that matches the main `config` object and will override
+ *  any matching values no matter where else the configuration value may be defined
+ * @property {string} [workingDir] The current working directory. Defaults to the value returned
+ *  by `process.cwd()`
+ * @property {boolean} [disableEnvarParsing] Set to `true` to turn off automatic parsing of
+ *  environment variables
  */
-const loadConfig = (configOpts = null) => {
+
+/**
+ * Takes an object and then performs configuration setup procedures upon that object. The
+ * provided object is directly altered
+ *
+ * @param {object} config The object to which the configurations should be applied
+ * @param {ConfigOpts} [opts] Additional options for config setup
+ */
+const loadConfig = (config = null, opts = {}) => {
+  const {overrides, workingDir = process.cwd()} = opts;
+
+  if (!config) {
+    config = require(path.join(workingDir, '.conf.default.js'));
+  }
+
+  let secretConfig = {};
+  try {
+    secretConfig = require(path.join(workingDir, '.conf.js'));
+  } catch(e) {
+    // Allow error
+  }
+
   for (const categoryKey in config) {
     const category = config[categoryKey];
 
     for (const valueKey in category) {
-      // Check for the value in the configuration options provided as an argument
-      if (configOpts && checkExists(configOpts, categoryKey, valueKey)) {
-        category[valueKey] = configOpts[categoryKey][valueKey];
+      // Check for the value in the configuration overrides
+      if (overrides && checkExists(overrides, categoryKey, valueKey)) {
+        category[valueKey] = overrides[categoryKey][valueKey];
+        continue;
+      }
+
+      // Check for the value in environment vars
+      const varName = `conf_${categoryKey}_${valueKey}`;
+      // console.log(process.env, varName, process.env[varName]);
+      if (process.env[varName]) {
+        category[valueKey] = process.env[varName];
+
+        if (opts.disableEnvarParsing !== true) {
+          // Try to parse envars as json
+          try {
+            category[valueKey] = JSON.parse(category[valueKey]);
+          } catch(e) {
+            // Allow failure, this must not be a JSON string
+          }
+
+          // Try to parse envars as numbers
+          const num = Number(category[valueKey]);
+          if (num !== NaN) category[valueKey] = num;
+        }
         continue;
       }
 
@@ -93,31 +106,14 @@ const loadConfig = (configOpts = null) => {
         category[valueKey] = secretConfig[categoryKey][valueKey];
         continue;
       }
-
-      // Check for the value in environment vars
-      const varName = `NODE_CONF_${categoryKey}_${valueKey}`;
-      if (process.env[varName]) {
-        category[valueKey] = process.env[varName];
-
-        // Try to parse envars as json
-        try {
-          category[valueKey] = JSON.parse(category[valueKey]);
-        } catch(e) {
-          // Allow failure, this must not be a JSON string
-        }
-        continue;
-      }
     }
   }
 
-  if (!config.config.errorOnUndefined) return;
-
-  if (!checkForUndefinedRecursive(this)) {
+  if (config.config && config.config.errorOnUndefined && !checkForUndefinedRecursive(this)) {
     throw new Error('Undefined configurations detected');
   }
+
+  return config;
 };
 
-loadConfig();
-
-config.loadConfig = loadConfig;
-module.exports = config;
+module.exports = loadConfig;
