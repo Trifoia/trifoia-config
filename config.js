@@ -96,7 +96,7 @@ const loadConfig = (config = null, opts = {}) => {
 
           // Try to parse envars as numbers
           const num = Number(category[valueKey]);
-          if (num !== NaN) category[valueKey] = num;
+          if (!isNaN(num)) category[valueKey] = num;
         }
         continue;
       }

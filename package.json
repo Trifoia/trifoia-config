@@ -1,6 +1,6 @@
 {
   "name": "trifoia-config",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An extremely simple configuration management system",
   "main": "config.js",
   "repository": {
